@@ -1,5 +1,4 @@
 #!/bin/bash
-GITHUB_TOKEN="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"
 
 # Test environment variables are set when release tag is not specified
 SETUP_OUTPUTS=$(GITHUB_REPOSITORY="Concept-Art-House/action-use" ./setup.sh)
