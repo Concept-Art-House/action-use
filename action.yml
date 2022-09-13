@@ -18,6 +18,7 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/checkout@v3
     - run: |
         if [ -z "$GITHUB_REPOSITORY" ]; then
           echo "GITHUB_REPOSITORY is not set"
