@@ -18,12 +18,52 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: setup.sh
+    - run: |
+        if [ -z "$GITHUB_REPOSITORY" ]; then
+          echo "GITHUB_REPOSITORY is not set"
+          exit 1
+        fi
+
+        if [[ "$GITHUB_REPOSITORY" == *"@"* ]]; then
+          RELEASE_TAG="${GITHUB_REPOSITORY##*@}"
+          GITHUB_REPOSITORY="${GITHUB_REPOSITORY%@*}"
+        fi
+
+        GITHUB_OWNER="${GITHUB_REPOSITORY%%/*}"
+        GITHUB_REPO="${GITHUB_REPOSITORY#*/}"
+
+        echo "::set-output name=release-tag::$RELEASE_TAG"
+        echo "::set-output name=github-owner::$GITHUB_OWNER"
+        echo "::set-output name=github-repo::$GITHUB_REPO"
+
       id: setup
       shell: bash
       env:
         GITHUB_REPOSITORY: ${{ inputs.github-repository }}
-    - run: main.sh
+    - run: |
+        join_paths() {
+          (IFS=/; echo "$*" | tr -s /)
+        }
+
+        setup_download_directory() {
+          local dir=$1
+
+          mkdir -p $dir
+        }
+
+        download_action() {
+          local url=$1
+          local token=$2
+          local dir=$3
+
+          curl "$url" -sL --user "$token:x-oauth-basic" --output - | tar -xzf - -C $dir --strip-components=1 # Extract the archive to the actions directory
+        }
+
+        DIRECTORY_PATH=$(join_paths $ACTIONS_DIRECTORY $GITHUB_OWNER $GITHUB_REPO $RELEASE_TAG)
+
+        setup_download_directory $DIRECTORY_PATH
+        download_action "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/tarball/$RELEASE_TAG" "$GITHUB_TOKEN" "$DIRECTORY_PATH"
+
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         GITHUB_OWNER: ${{ steps.setup.outputs.github-owner }}
