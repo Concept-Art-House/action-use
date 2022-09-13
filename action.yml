@@ -1,0 +1,32 @@
+name: Use Action
+description: Allows the context to use private github actions within the workflow context
+author: Concept-Art-House
+
+inputs:
+  github-token:
+    description: The GitHub token used to create an authenticated client
+    default: ${{ github.token }}
+    required: false
+  github-repository:
+    description: "The GitHub repostiory. Example: `octocat/hello-world`"
+    required: true
+  actions-directory:
+    description: The default location 
+    default: ".actions"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - run: setup.sh
+      id: setup
+      shell: bash
+      env:
+        GITHUB_REPOSITORY: ${{ inputs.github-repository }}
+    - run: main.sh
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_OWNER: ${{ steps.setup.outputs.github-owner }}
+        GITHUB_REPO: ${{ steps.setup.outputs.github-repo }}
+        RELEASE_TAG: ${{ steps.setup.outputs.release-tag }}
+      shell: bash
