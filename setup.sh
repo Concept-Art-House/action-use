@@ -6,8 +6,8 @@ if [ -z "$GITHUB_REPOSITORY" ]; then
 fi
 
 if [[ "$GITHUB_REPOSITORY" == *"@"* ]]; then
-    RELEASE_TAG="${GITHUB_REPOSITORY##*@}"
-    GITHUB_REPOSITORY="${GITHUB_REPOSITORY%@*}"
+    RELEASE_TAG=$(echo "$GITHUB_REPOSITORY" | cut -d "@" -f 2)
+    GITHUB_REPOSITORY=$(echo "$GITHUB_REPOSITORY" | cut -d "@" -f 1)
 fi
 
 GITHUB_OWNER="${GITHUB_REPOSITORY%%/*}"
