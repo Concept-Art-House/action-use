@@ -5,6 +5,8 @@ if [ -z "$GITHUB_REPOSITORY" ]; then
     exit 1
 fi
 
+echo "GITUB_REPOSITORY: $GITHUB_REPOSITORY"
+
 if [[ "$GITHUB_REPOSITORY" =~ "@" ]]; then
     RELEASE_TAG="${GITHUB_REPOSITORY##*@}"
     GITHUB_REPOSITORY="${GITHUB_REPOSITORY%@*}"
