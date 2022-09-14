@@ -1,5 +1,9 @@
 #!/bin/bash
 
+function join_paths() {
+    (IFS=/; echo "$*" | tr -s /)
+}
+
 function setup_download_directory() {
     local dir=$1
 

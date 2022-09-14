@@ -24,19 +24,17 @@ runs:
           exit 1
         fi
 
-        echo "GH_REPOSITORY: $GH_REPOSITORY"
-
         if [[ "$GH_REPOSITORY" =~ "@" ]]; then
           RELEASE_TAG="${GH_REPOSITORY##*@}"
           GH_REPOSITORY="${GH_REPOSITORY%@*}"
         fi
 
-        GITHUB_OWNER="${GH_REPOSITORY%%/*}"
-        GITHUB_REPO="${GH_REPOSITORY#*/}"
+        GH_OWNER="${GH_REPOSITORY%%/*}"
+        GH_REPO="${GH_REPOSITORY#*/}"
 
         echo "::set-output name=release-tag::$RELEASE_TAG"
-        echo "::set-output name=github-owner::$GITHUB_OWNER"
-        echo "::set-output name=github-repo::$GITHUB_REPO"
+        echo "::set-output name=github-owner::$GH_OWNER"
+        echo "::set-output name=github-repo::$GH_REPO"
 
       id: setup
       shell: bash
@@ -61,15 +59,15 @@ runs:
           curl "$url" -sL --user "$token:x-oauth-basic" --output - | tar -xzf - -C $dir --strip-components=1 # Extract the archive to the actions directory
         }
 
-        DIRECTORY_PATH=$(join_paths $ACTIONS_DIRECTORY $GITHUB_OWNER $GITHUB_REPO@$RELEASE_TAG)
+        DIRECTORY_PATH=$(join_paths $ACTIONS_DIRECTORY_PATH $GH_OWNER $GH_REPO@$RELEASE_TAG)
 
         setup_download_directory $DIRECTORY_PATH
-        download_action "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/tarball/$RELEASE_TAG" "$GITHUB_TOKEN" "$DIRECTORY_PATH"
+        download_action "https://api.github.com/repos/$GH_OWNER/$GH_REPO/tarball/$RELEASE_TAG" "$GH_ACCESS_TOKEN" "$DIRECTORY_PATH"
 
       env:
-        ACTIONS_DIRECTORY: ${{ inputs.actions-directory }}
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-        GITHUB_OWNER: ${{ steps.setup.outputs.github-owner }}
-        GITHUB_REPO: ${{ steps.setup.outputs.github-repo }}
+        ACTIONS_DIRECTORY_PATH: ${{ inputs.actions-directory }}
+        GH_ACCESS_TOKEN: ${{ inputs.github-token }}
+        GH_OWNER: ${{ steps.setup.outputs.github-owner }}
+        GH_REPO: ${{ steps.setup.outputs.github-repo }}
         RELEASE_TAG: ${{ steps.setup.outputs.release-tag }}
       shell: bash

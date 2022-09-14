@@ -1,20 +1,16 @@
-#!/bin/bash
-
-if [ -z "$GITHUB_REPOSITORY" ]; then
-    echo "GITHUB_REPOSITORY is not set"
+if [ -z "$GH_REPOSITORY" ]; then
+    echo "GH_REPOSITORY is not set"
     exit 1
 fi
 
-echo "GITUB_REPOSITORY: $GITHUB_REPOSITORY"
-
-if [[ "$GITHUB_REPOSITORY" =~ "@" ]]; then
-    RELEASE_TAG="${GITHUB_REPOSITORY##*@}"
-    GITHUB_REPOSITORY="${GITHUB_REPOSITORY%@*}"
+if [[ "$GH_REPOSITORY" =~ "@" ]]; then
+    RELEASE_TAG="${GH_REPOSITORY##*@}"
+    GH_REPOSITORY="${GH_REPOSITORY%@*}"
 fi
 
-GITHUB_OWNER="${GITHUB_REPOSITORY%%/*}"
-GITHUB_REPO="${GITHUB_REPOSITORY#*/}"
+GH_OWNER="${GH_REPOSITORY%%/*}"
+GH_REPO="${GH_REPOSITORY#*/}"
 
 echo "::set-output name=release-tag::$RELEASE_TAG"
-echo "::set-output name=github-owner::$GITHUB_OWNER"
-echo "::set-output name=github-repo::$GITHUB_REPO"
+echo "::set-output name=github-owner::$GH_OWNER"
+echo "::set-output name=github-repo::$GH_REPO"
